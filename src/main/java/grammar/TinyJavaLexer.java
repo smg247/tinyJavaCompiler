@@ -432,15 +432,15 @@ public class TinyJavaLexer implements java_cup.runtime.Scanner {
         this.symbolFactory = symbolFactory;
     }
 
-    private Symbol symbol(String name, Token token) {
+    private Symbol symbol(String name, int token) {
         return symbol(name, token, null);
     }
 
-    private Symbol symbol(String name, Token token, Object value) {
+    private Symbol symbol(String name, int token, Object value) {
         int line = yyline + 1;
         Location left = new Location(line, yycolumn + 1, yychar);
         Location right = new Location(line, yycolumn + yylength(), yychar + yylength());
-        return symbolFactory.newSymbol(name, token.ordinal(), left, right, value);
+        return symbolFactory.newSymbol(name, token, left, right, value);
     }
 
     private void error(String error) {
@@ -829,7 +829,7 @@ public class TinyJavaLexer implements java_cup.runtime.Scanner {
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
             zzDoEOF();
-          {     return symbolFactory.newSymbol("EOF", EOF.ordinal(), new Location(yyline + 1, yycolumn + 1, yychar), new Location(yyline + 1, yycolumn + 1, yychar + 1));
+          {     return symbolFactory.newSymbol("EOF", EOF, new Location(yyline + 1, yycolumn + 1, yychar), new Location(yyline + 1, yycolumn + 1, yychar + 1));
  }
       }
       else {
