@@ -27,5 +27,5 @@ public enum Token {
     GREATER_THAN_EQUALS,
     PLUS,
     MINUS,
-    EOF;
+    EOF
 }

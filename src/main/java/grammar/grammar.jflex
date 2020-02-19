@@ -46,14 +46,21 @@ import java.io.Reader;
 %eofval}
 
 Identifier = [a-zA-Z_][\w]
-DecimalInteger = 0|[1-9][0-9]+
-//TODO: deal with the exponents at some point
-FloatingPoint = [0-9|0-9*.0-9|0-9*]|[0-9|0-9*.0-9|0-9*f|F]
+
+NonZeroDigit = [1-9]
+DecimalInteger = 0|\d{NonZeroDigit}+
+
+Exponent = [e|E][[\+|-]\d+]|\d+
+SimpleFloat = {DecimalInteger}+.\d+
+FormalFloat = {DecimalInteger}+.\d+f|F
+FloatingPoint = {SimpleFloat}|{FormalFloat}|{SimpleFloat}{Exponent}|{FormalFloat}{Exponent}
 //TODO: the strings aren't smart enough yet, they need to allow \" and the like
 StringLiteral = ".*"
 WhiteSpace = \s
 //TODO: the multiline comment style doesn't seem to support multiline right now
-Comment = [//.*|/\*.*\*/]
+SingleLineComment = [//.*]
+MultiLineComment = [/\*.*\*/]
+Comment = {SingleLineComment}|{MultiLineComment}
 
 %state STRING
 
