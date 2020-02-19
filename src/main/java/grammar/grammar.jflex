@@ -39,6 +39,10 @@ import java.io.Reader;
         Location right = new Location(line, yycolumn + yylength(), yychar + yylength());
         return symbolFactory.newSymbol(name, token.ordinal(), left, right, value);
     }
+
+    private void error(String error) {
+        System.out.println("Error on line " + (yyline + 1) + ", at col " + (yycolumn + 1) + " : " + error);
+    }
 %}
 
 %eofval{
@@ -71,8 +75,8 @@ Comment = {SingleLineComment}|{MultiLineComment}
   {DecimalInteger}             { return symbol("DecimalInteger", DECIMAL_INTEGER, Integer.parseInt(yytext())); }
   {FloatingPoint}              { return symbol("FloatingPoint", FLOATING_POINT, Float.parseFloat(yytext())); }
   {StringLiteral}              { return symbol("StringLiteral", STRING_LITERAL, yytext()); }
-  {WhiteSpace}                 { /* IGNORE */ }
-  {Comment}                    { /* IGNORE */ }
+  {WhiteSpace}                 { /* IGNORE WhiteSpace */ }
+  {Comment}                    { /* IGNORE Comment */ }
 
 
   "public"                     { return symbol("public", PUBLIC); }
@@ -102,3 +106,5 @@ Comment = {SingleLineComment}|{MultiLineComment}
   "{"                          { return symbol("{", LEFT_CURLY_BRACE); }
   "}"                          { return symbol("}", RIGHT_CURLY_BRACE); }
 }
+
+[^]                            { error("Unrecognized character " + yytext()); }
