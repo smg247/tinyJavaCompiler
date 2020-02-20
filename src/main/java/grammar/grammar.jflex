@@ -59,9 +59,9 @@ DecimalInteger = 0|\d{NonZeroDigit}*
 
 Exponent = [e|E][[\+|-]\d+]|\d+
 SimpleFloat = {DecimalInteger}+.\d+
-FormalFloat = {DecimalInteger}+.\d+f|F
+FormalFloat = {DecimalInteger}+.\d+[f|F]
 FloatingPoint = {SimpleFloat} | {FormalFloat} | {SimpleFloat}{Exponent} | {FormalFloat}{Exponent}
-//TODO: the strings aren't smart enough yet, they need to allow \" and the like
+
 StringLiteral = \".*\"
 WhiteSpace = \s
 
@@ -69,7 +69,7 @@ MultiLineComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 SingleLineComment = "//" {Character}* {LineEnd}?
 Comment = {SingleLineComment} | {MultiLineComment}
 
-%state STRING, SINGLELINECOMMENT
+%state STRING
 
 %%
 
@@ -116,9 +116,5 @@ Comment = {SingleLineComment} | {MultiLineComment}
   "{"                          { return symbol("{", LEFT_CURLY_BRACE); }
   "}"                          { return symbol("}", RIGHT_CURLY_BRACE); }
 }
-
-//<STRING> {
-//
-//}
 
 [^]                            { error("Unrecognized character " + yytext()); }

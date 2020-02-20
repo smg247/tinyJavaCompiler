@@ -5,6 +5,8 @@ import java_cup.runtime.Symbol;
 import java.io.*;
 
 parser code {:
+    private static int errorCount = 0;
+
     public TinyJavaParser(TinyJavaLexer lexer, ComplexSymbolFactory symbolFactory) {
         super(lexer, symbolFactory);
     }
@@ -17,6 +19,20 @@ parser code {:
         Symbol symbol = tinyJavaParser.parse();
     }
 
+    public void report_error(String message, Object info) {
+        if (info instanceof ComplexSymbolFactory.ComplexSymbol) {
+          errorCount++;
+          ComplexSymbolFactory.ComplexSymbol symbol = (ComplexSymbolFactory.ComplexSymbol) info;
+          String symbolName = symbol.value != null ? symbol.value.toString() : symbol.getName();
+          System.out.println("Encountered error number: " + errorCount + " <" + message + "> " + ": found <" + symbolName + "> on line " + symbol.getLeft().getLine() + " at column " + symbol.getLeft().getColumn());
+        } else {
+          throw new RuntimeException("We have an error that we aren't familiar with");
+        }
+    }
+
+    public void report_fatal_error(String message, Object info) {
+            report_error(message, info);
+        }
 :};
 
 terminal     IF, ELSE, WHILE, RETURN, PUBLIC, STATIC, CLASS;
@@ -58,7 +74,6 @@ non terminal tiny_java_program,
 // TODO: remember these precedences if there are issues...
 precedence left ELSE;
 
-//precedence left IDENTIFIER;
 
 tiny_java_program              ::= class_decl;
 
@@ -70,17 +85,18 @@ member_decl_list               ::= member_decl
 member_decl                    ::= field_decl
                                  | method_decl;
 
-field_decl                     ::= STATIC type IDENTIFIER EQUALS literal SEMICOLON;
+field_decl                     ::= STATIC return_type IDENTIFIER EQUALS literal SEMICOLON;
+//field_decl                     ::= STATIC type IDENTIFIER EQUALS literal SEMICOLON; // This is the original production, but it is challenging to make this unambiguous
 
 
 method_decl                    ::= STATIC return_type IDENTIFIER LEFT_PAREN formal_param_list RIGHT_PAREN LEFT_CURLY_BRACE method_body RIGHT_CURLY_BRACE
                                  | STATIC return_type IDENTIFIER LEFT_PAREN RIGHT_PAREN LEFT_CURLY_BRACE method_body RIGHT_CURLY_BRACE
-                                 | PUBLIC STATIC VOID IDENTIFIER LEFT_PAREN IDENTIFIER LEFT_BRACKET RIGHT_BRACKET IDENTIFIER RIGHT_PAREN LEFT_CURLY_BRACE method_body RIGHT_CURLY_BRACE;
+                                 | PUBLIC STATIC VOID IDENTIFIER LEFT_PAREN IDENTIFIER LEFT_BRACKET RIGHT_BRACKET IDENTIFIER RIGHT_PAREN LEFT_CURLY_BRACE method_body RIGHT_CURLY_BRACE
+                                 | error;
 
 type                           ::= INT
                                  | DOUBLE;
 
-//TODO: Warning : *** Production "return_type ::= type " never reduced
 return_type                    ::= type
                                  | VOID;
 
@@ -108,7 +124,8 @@ statement                      ::= IDENTIFIER EQUALS expression SEMICOLON
                                  | WHILE LEFT_PAREN expression RIGHT_PAREN statement
                                  | method_invocation SEMICOLON
                                  | LEFT_CURLY_BRACE statement_list RIGHT_CURLY_BRACE
-                                 | SEMICOLON;
+                                 | SEMICOLON
+                                 | error;
 
 return_statement               ::= RETURN expression SEMICOLON
                                  | RETURN SEMICOLON;
@@ -124,7 +141,8 @@ argument_list                  ::= expression
 
 expression                     ::= relational_expression
                                  | relational_expression DOUBLE_EQUALS relational_expression
-                                 | relational_expression NOT_EQUALS relational_expression;
+                                 | relational_expression NOT_EQUALS relational_expression
+                                 | error;
 
 relational_expression          ::= additive_expression
                                  | additive_expression LESS_THAN additive_expression
