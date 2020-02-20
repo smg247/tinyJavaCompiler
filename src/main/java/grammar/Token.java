@@ -8,63 +8,79 @@ package grammar;
 /** CUP generated class containing symbol constants. */
 public class Token {
   /* terminals */
-  public static final int RIGHT_CURLY_BRACE = 17;
-  public static final int CLASS = 7;
-  public static final int SEMICOLON = 14;
-  public static final int PLUS = 26;
-  public static final int INT = 18;
-  public static final int LEFT_PAREN = 11;
-  public static final int DOUBLE_EQUALS = 20;
-  public static final int GREATER_THAN = 23;
-  public static final int IDENTIFIER = 2;
-  public static final int PUBLIC = 6;
-  public static final int GREATER_THAN_EQUALS = 25;
-  public static final int STATIC = 8;
-  public static final int STRING_LITERAL = 5;
-  public static final int EQUALS = 13;
+  public static final int DIVIDE = 20;
+  public static final int RIGHT_PAREN = 32;
+  public static final int STRING_LITERAL = 15;
+  public static final int RIGHT_BRACKET = 30;
+  public static final int EQUALS = 16;
+  public static final int PERIOD = 23;
+  public static final int DOUBLE = 9;
+  public static final int DOUBLE_EQUALS = 24;
+  public static final int INT = 10;
+  public static final int MINUS = 18;
+  public static final int GREATER_THAN = 28;
+  public static final int STATIC = 7;
+  public static final int SEMICOLON = 21;
+  public static final int DECIMAL_INTEGER = 13;
+  public static final int RIGHT_CURLY_BRACE = 35;
+  public static final int COMMA = 22;
+  public static final int CLASS = 8;
+  public static final int PLUS = 17;
+  public static final int IF = 2;
   public static final int EOF = 0;
-  public static final int LESS_THAN = 22;
-  public static final int MINUS = 27;
-  public static final int DECIMAL_INTEGER = 3;
-  public static final int NOT_EQUALS = 21;
-  public static final int LEFT_BRACKET = 9;
+  public static final int RETURN = 5;
   public static final int error = 1;
-  public static final int LESS_THAN_EQUALS = 24;
-  public static final int RIGHT_PAREN = 12;
-  public static final int FLOATING_POINT = 4;
-  public static final int VOID = 15;
-  public static final int DOUBLE = 19;
-  public static final int RIGHT_BRACKET = 10;
-  public static final int LEFT_CURLY_BRACE = 16;
+  public static final int VOID = 11;
+  public static final int TIMES = 19;
+  public static final int ELSE = 3;
+  public static final int WHILE = 4;
+  public static final int NOT_EQUALS = 25;
+  public static final int PUBLIC = 6;
+  public static final int LEFT_PAREN = 33;
+  public static final int FLOATING_POINT = 14;
+  public static final int LEFT_CURLY_BRACE = 34;
+  public static final int GREATER_THAN_EQUALS = 27;
+  public static final int LESS_THAN = 29;
+  public static final int LESS_THAN_EQUALS = 26;
+  public static final int LEFT_BRACKET = 31;
+  public static final int IDENTIFIER = 12;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
+  "IF",
+  "ELSE",
+  "WHILE",
+  "RETURN",
+  "PUBLIC",
+  "STATIC",
+  "CLASS",
+  "DOUBLE",
+  "INT",
+  "VOID",
   "IDENTIFIER",
   "DECIMAL_INTEGER",
   "FLOATING_POINT",
   "STRING_LITERAL",
-  "PUBLIC",
-  "CLASS",
-  "STATIC",
-  "LEFT_BRACKET",
-  "RIGHT_BRACKET",
-  "LEFT_PAREN",
-  "RIGHT_PAREN",
   "EQUALS",
+  "PLUS",
+  "MINUS",
+  "TIMES",
+  "DIVIDE",
   "SEMICOLON",
-  "VOID",
-  "LEFT_CURLY_BRACE",
-  "RIGHT_CURLY_BRACE",
-  "INT",
-  "DOUBLE",
+  "COMMA",
+  "PERIOD",
   "DOUBLE_EQUALS",
   "NOT_EQUALS",
-  "LESS_THAN",
-  "GREATER_THAN",
   "LESS_THAN_EQUALS",
   "GREATER_THAN_EQUALS",
-  "PLUS",
-  "MINUS"
+  "GREATER_THAN",
+  "LESS_THAN",
+  "RIGHT_BRACKET",
+  "LEFT_BRACKET",
+  "RIGHT_PAREN",
+  "LEFT_PAREN",
+  "LEFT_CURLY_BRACE",
+  "RIGHT_CURLY_BRACE"
   };
 }
 

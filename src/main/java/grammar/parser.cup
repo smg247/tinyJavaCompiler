@@ -1,4 +1,8 @@
 import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ScannerBuffer;
+import java_cup.runtime.Symbol;
+
+import java.io.*;
 
 parser code {:
     public TinyJavaParser(TinyJavaLexer lexer, ComplexSymbolFactory symbolFactory) {
@@ -6,38 +10,148 @@ parser code {:
     }
 
     public static void main(String[] args) throws Exception {
-
+        String inputFileName = args[0];
+        ComplexSymbolFactory symbolFactory = new ComplexSymbolFactory();
+        ScannerBuffer tinyJavaLexer = new ScannerBuffer(new TinyJavaLexer(new BufferedReader(new FileReader(inputFileName)), symbolFactory));
+        TinyJavaParser tinyJavaParser = new TinyJavaParser(tinyJavaLexer, symbolFactory);
+        Symbol symbol = tinyJavaParser.parse();
     }
 
 :};
 
-terminal     IDENTIFIER,
-             DECIMAL_INTEGER,
-             FLOATING_POINT,
-             STRING_LITERAL,
-             PUBLIC,
-             CLASS,
-             STATIC,
-             LEFT_BRACKET,
-             RIGHT_BRACKET,
-             LEFT_PAREN,
-             RIGHT_PAREN,
-             EQUALS,
-             SEMICOLON,
-             VOID,
-             LEFT_CURLY_BRACE,
-             RIGHT_CURLY_BRACE,
-             INT,
-             DOUBLE,
-             DOUBLE_EQUALS,
-             NOT_EQUALS,
-             LESS_THAN,
-             GREATER_THAN,
-             LESS_THAN_EQUALS,
-             GREATER_THAN_EQUALS,
-             PLUS,
-             MINUS;
+terminal     IF, ELSE, WHILE, RETURN, PUBLIC, STATIC, CLASS;
+terminal     DOUBLE, INT, VOID;
+terminal     IDENTIFIER, DECIMAL_INTEGER, FLOATING_POINT, STRING_LITERAL;
+terminal     EQUALS, PLUS, MINUS, TIMES, DIVIDE, SEMICOLON, COMMA, PERIOD;
+terminal     DOUBLE_EQUALS, NOT_EQUALS, LESS_THAN_EQUALS, GREATER_THAN_EQUALS, GREATER_THAN, LESS_THAN;
+terminal     RIGHT_BRACKET, LEFT_BRACKET, RIGHT_PAREN, LEFT_PAREN, LEFT_CURLY_BRACE, RIGHT_CURLY_BRACE;
 
-non terminal tiny_java_program;
+non terminal tiny_java_program,
+             class_decl,
+             member_decl_list,
+             field_decl,
+             member_decl,
+             method_decl,
+             type,
+             return_type,
+             formal_param_list,
+             formal_param,
+             method_body,
+             local_decl_list,
+             local_decl,
+             method_statement_list,
+             statement_list,
+             statement,
+             return_statement,
+             method_invocation,
+             qualified_name,
+             argument_list,
+             expression,
+             relational_expression,
+             additive_expression,
+             multiplicative_expression,
+             unary_expression,
+             primary_expression,
+             literal,
+             empty;
 
-tiny_java_program       ::= SEMICOLON;
+// TODO: remember these precedences if there are issues...
+precedence left ELSE;
+
+//precedence left IDENTIFIER;
+
+tiny_java_program              ::= class_decl;
+
+class_decl                     ::= PUBLIC CLASS IDENTIFIER LEFT_CURLY_BRACE member_decl_list RIGHT_CURLY_BRACE;
+
+member_decl_list               ::= member_decl
+                                 | member_decl member_decl_list;
+
+member_decl                    ::= field_decl
+                                 | method_decl;
+
+field_decl                     ::= STATIC type IDENTIFIER EQUALS literal SEMICOLON;
+
+
+method_decl                    ::= STATIC return_type IDENTIFIER LEFT_PAREN formal_param_list RIGHT_PAREN LEFT_CURLY_BRACE method_body RIGHT_CURLY_BRACE
+                                 | STATIC return_type IDENTIFIER LEFT_PAREN RIGHT_PAREN LEFT_CURLY_BRACE method_body RIGHT_CURLY_BRACE
+                                 | PUBLIC STATIC VOID IDENTIFIER LEFT_PAREN IDENTIFIER LEFT_BRACKET RIGHT_BRACKET IDENTIFIER RIGHT_PAREN LEFT_CURLY_BRACE method_body RIGHT_CURLY_BRACE;
+
+type                           ::= INT
+                                 | DOUBLE;
+
+//TODO: Warning : *** Production "return_type ::= type " never reduced
+return_type                    ::= type
+                                 | VOID;
+
+formal_param_list              ::= formal_param
+                                 | formal_param COMMA formal_param_list;
+
+formal_param                   ::= type IDENTIFIER;
+
+method_body                    ::= local_decl_list method_statement_list;
+
+local_decl_list                ::= local_decl local_decl_list
+                                 | empty;
+
+local_decl                     ::= type IDENTIFIER EQUALS literal SEMICOLON;
+
+method_statement_list          ::= statement method_statement_list
+                                 | return_statement;
+
+statement_list                 ::= statement statement_list
+                                 | empty;
+
+statement                      ::= IDENTIFIER EQUALS expression SEMICOLON
+                                 | IF LEFT_PAREN expression RIGHT_PAREN statement
+                                 | IF LEFT_PAREN expression RIGHT_PAREN statement ELSE statement
+                                 | WHILE LEFT_PAREN expression RIGHT_PAREN statement
+                                 | method_invocation SEMICOLON
+                                 | LEFT_CURLY_BRACE statement_list RIGHT_CURLY_BRACE
+                                 | SEMICOLON;
+
+return_statement               ::= RETURN expression SEMICOLON
+                                 | RETURN SEMICOLON;
+
+method_invocation              ::= qualified_name LEFT_PAREN argument_list RIGHT_PAREN
+                                 | qualified_name LEFT_PAREN RIGHT_PAREN;
+
+qualified_name                 ::= IDENTIFIER PERIOD IDENTIFIER
+                                 | IDENTIFIER;
+
+argument_list                  ::= expression
+                                 | expression COMMA argument_list;
+
+expression                     ::= relational_expression
+                                 | relational_expression DOUBLE_EQUALS relational_expression
+                                 | relational_expression NOT_EQUALS relational_expression;
+
+relational_expression          ::= additive_expression
+                                 | additive_expression LESS_THAN additive_expression
+                                 | additive_expression GREATER_THAN additive_expression
+                                 | additive_expression LESS_THAN_EQUALS additive_expression
+                                 | additive_expression GREATER_THAN_EQUALS additive_expression;
+
+additive_expression            ::= multiplicative_expression
+                                 | additive_expression PLUS multiplicative_expression
+                                 | additive_expression MINUS multiplicative_expression;
+
+multiplicative_expression      ::= unary_expression
+                                 | multiplicative_expression TIMES unary_expression
+                                 | multiplicative_expression DIVIDE unary_expression;
+
+unary_expression               ::= primary_expression
+                                 | PLUS unary_expression
+                                 | MINUS unary_expression
+                                 | LEFT_PAREN type RIGHT_PAREN unary_expression;
+
+primary_expression             ::= literal
+                                 | IDENTIFIER
+                                 | method_invocation
+                                 | LEFT_PAREN expression RIGHT_PAREN;
+
+literal                        ::= DECIMAL_INTEGER
+                                 | FLOATING_POINT
+                                 | STRING_LITERAL;
+
+empty                          ::= /* NOTHING */;

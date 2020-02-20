@@ -49,36 +49,35 @@ import java.io.Reader;
     return symbolFactory.newSymbol("EOF", EOF, new Location(yyline + 1, yycolumn + 1, yychar), new Location(yyline + 1, yycolumn + 1, yychar + 1));
 %eofval}
 
-Identifier = [a-zA-Z_][\w]
+Character = [^\r\n]
+LineEnd = \r|\n|\r\n
+
+Identifier = [a-zA-Z_][\w]*
 
 NonZeroDigit = [1-9]
-DecimalInteger = 0|\d{NonZeroDigit}+
+DecimalInteger = 0|\d{NonZeroDigit}*
 
 Exponent = [e|E][[\+|-]\d+]|\d+
 SimpleFloat = {DecimalInteger}+.\d+
 FormalFloat = {DecimalInteger}+.\d+f|F
-FloatingPoint = {SimpleFloat}|{FormalFloat}|{SimpleFloat}{Exponent}|{FormalFloat}{Exponent}
+FloatingPoint = {SimpleFloat} | {FormalFloat} | {SimpleFloat}{Exponent} | {FormalFloat}{Exponent}
 //TODO: the strings aren't smart enough yet, they need to allow \" and the like
-StringLiteral = ".*"
+StringLiteral = \".*\"
 WhiteSpace = \s
-//TODO: the multiline comment style doesn't seem to support multiline right now
-SingleLineComment = [//.*]
-MultiLineComment = [/\*.*\*/]
-Comment = {SingleLineComment}|{MultiLineComment}
 
-%state STRING
+MultiLineComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+SingleLineComment = "//" {Character}* {LineEnd}?
+Comment = {SingleLineComment} | {MultiLineComment}
+
+%state STRING, SINGLELINECOMMENT
 
 %%
 
 <YYINITIAL> {
-  {Identifier}                 { return symbol("Identifier", IDENTIFIER, yytext()); }
-  {DecimalInteger}             { return symbol("DecimalInteger", DECIMAL_INTEGER, Integer.parseInt(yytext())); }
-  {FloatingPoint}              { return symbol("FloatingPoint", FLOATING_POINT, Float.parseFloat(yytext())); }
-  {StringLiteral}              { return symbol("StringLiteral", STRING_LITERAL, yytext()); }
-  {WhiteSpace}                 { /* IGNORE WhiteSpace */ }
-  {Comment}                    { /* IGNORE Comment */ }
-
-
+  "if"                         { return symbol("if", IF); }
+  "else"                       { return symbol("else", ELSE); }
+  "while"                      { return symbol("while", WHILE); }
+  "return"                     { return symbol("return", RETURN); }
   "public"                     { return symbol("public", PUBLIC); }
   "static"                     { return symbol("static", STATIC); }
   "void"                       { return symbol("void", VOID); }
@@ -87,10 +86,21 @@ Comment = {SingleLineComment}|{MultiLineComment}
   "double"                     { return symbol("double", DOUBLE); }
   "int"                        { return symbol("int", INT); }
 
+  {Identifier}                 { return symbol("Identifier", IDENTIFIER, yytext()); }
+  {DecimalInteger}             { return symbol("DecimalInteger", DECIMAL_INTEGER, Integer.parseInt(yytext())); }
+  {FloatingPoint}              { return symbol("FloatingPoint", FLOATING_POINT, Float.parseFloat(yytext())); }
+  {StringLiteral}              { return symbol("StringLiteral", STRING_LITERAL, yytext()); }
+  {WhiteSpace}                 { /* IGNORE WhiteSpace */ }
+  {Comment}                    { /* IGNORE Comment */ }
+
   "="                          { return symbol("=", EQUALS); }
   "+"                          { return symbol("+", PLUS); }
   "-"                          { return symbol("-", MINUS); }
+  "*"                          { return symbol("*", TIMES); }
+  "/"                          { return symbol("/", DIVIDE); }
   ";"                          { return symbol(";", SEMICOLON); }
+  ","                          { return symbol(",", COMMA); }
+  "."                          { return symbol(".", PERIOD); }
 
   "=="                         { return symbol("==", DOUBLE_EQUALS); }
   "!="                         { return symbol("!=", NOT_EQUALS); }
@@ -106,5 +116,9 @@ Comment = {SingleLineComment}|{MultiLineComment}
   "{"                          { return symbol("{", LEFT_CURLY_BRACE); }
   "}"                          { return symbol("}", RIGHT_CURLY_BRACE); }
 }
+
+//<STRING> {
+//
+//}
 
 [^]                            { error("Unrecognized character " + yytext()); }
