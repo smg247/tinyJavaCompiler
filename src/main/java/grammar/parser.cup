@@ -12,10 +12,15 @@ parser code {:
     }
 
     public static void main(String[] args) throws Exception {
-        String inputFileName = args[0];
         ComplexSymbolFactory symbolFactory = new ComplexSymbolFactory();
+        String inputFileName = args[0];
         ScannerBuffer tinyJavaLexer = new ScannerBuffer(new TinyJavaLexer(new BufferedReader(new FileReader(inputFileName)), symbolFactory));
         TinyJavaParser tinyJavaParser = new TinyJavaParser(tinyJavaLexer, symbolFactory);
+
+        String outputFileName = args[1];
+        System.setErr(new PrintStream("error.log"));
+        System.setOut(new PrintStream(new FileOutputStream(outputFileName)));
+
         Symbol symbol = tinyJavaParser.parse();
     }
 
@@ -71,7 +76,6 @@ non terminal tiny_java_program,
              literal,
              empty;
 
-// TODO: remember these precedences if there are issues...
 precedence left ELSE;
 
 
@@ -141,8 +145,7 @@ argument_list                  ::= expression
 
 expression                     ::= relational_expression
                                  | relational_expression DOUBLE_EQUALS relational_expression
-                                 | relational_expression NOT_EQUALS relational_expression
-                                 | error;
+                                 | relational_expression NOT_EQUALS relational_expression;
 
 relational_expression          ::= additive_expression
                                  | additive_expression LESS_THAN additive_expression
